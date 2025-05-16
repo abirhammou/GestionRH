@@ -29,6 +29,19 @@ public class Database {
     }
 
     public Connection getCnx() {
+        try {
+            if (cnx == null || cnx.isClosed() || !cnx.isValid(2)) {
+                System.out.println("Reconnecting to database...");
+                cnx = DriverManager.getConnection(url, username, password);
+            }
+        } catch (SQLException e) {
+            System.err.println("Connection error: " + e.getMessage());
+            try {
+                cnx = DriverManager.getConnection(url, username, password);
+            } catch (SQLException ex) {
+                System.err.println("Failed to reconnect: " + ex.getMessage());
+            }
+        }
         return cnx;
     }
 }
