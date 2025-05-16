@@ -4,12 +4,11 @@ import entities.Departement;
 import entities.Employees;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.util.StringConverter;
 import utils.Database;
 
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class EmployeeService {
 
@@ -20,13 +19,14 @@ public class EmployeeService {
     }
 
     public void addEmployee(Employees emp) throws SQLException {
-        String sql = "INSERT INTO employees (name, email, phone, role, department_id) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO employees (name, email, phone, role, department_id, password) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = cnx.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, emp.getName());
             ps.setString(2, emp.getEmail());
             ps.setInt(3, emp.getPhone());
             ps.setString(4, emp.getRole());
             ps.setInt(5, emp.getDepartement().getId());
+            ps.setString(6, emp.getPassword());
 
             int affectedRows = ps.executeUpdate();
 
@@ -43,14 +43,15 @@ public class EmployeeService {
     }
 
     public void updateEmployee(Employees emp) throws SQLException {
-        String sql = "UPDATE employees SET name = ?, email = ?, phone = ?, role = ?, department_id = ? WHERE id = ?";
+        String sql = "UPDATE employees SET name = ?, email = ?, phone = ?, role = ?, department_id = ?, password = ? WHERE id = ?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, emp.getName());
             ps.setString(2, emp.getEmail());
             ps.setInt(3, emp.getPhone());
             ps.setString(4, emp.getRole());
             ps.setInt(5, emp.getDepartement().getId());
-            ps.setInt(6, emp.getId());
+            ps.setString(6, emp.getPassword());
+            ps.setInt(7, emp.getId());
 
             ps.executeUpdate();
         }
@@ -85,11 +86,14 @@ public class EmployeeService {
                         rs.getString("email"),
                         rs.getInt("phone"),
                         rs.getString("role"),
-                        dep
+                        dep,
+                        rs.getString("password")
                 );
+
                 employees.add(emp);
             }
         }
+
         return employees;
     }
 
@@ -114,11 +118,66 @@ public class EmployeeService {
                             rs.getString("email"),
                             rs.getInt("phone"),
                             rs.getString("role"),
-                            dep
+                            dep,
+                            rs.getString("password")
                     );
                 }
             }
         }
         return null;
+    }
+
+    public Map<String, Integer> getEmployeeCountByDepartment() throws SQLException {
+        Map<String, Integer> stats = new HashMap<>();
+        String sql = "SELECT d.name, COUNT(e.id) as employee_count " +
+                "FROM departement d LEFT JOIN employees e ON d.id = e.department_id " +
+                "GROUP BY d.name";
+
+        try (Statement st = cnx.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                stats.put(rs.getString("name"), rs.getInt("employee_count"));
+            }
+        }
+
+        return stats;
+    }
+
+    public boolean validateLogin(String email, String password) throws SQLException {
+        String query = "SELECT COUNT(*) FROM employees WHERE email = ? AND password = ?";
+
+        try (PreparedStatement statement = cnx.prepareStatement(query)) {
+            statement.setString(1, email);
+            statement.setString(2, password);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean emailExists(String email) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM employees WHERE email = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean updatePassword(String email, String newPassword) throws SQLException {
+        String sql = "UPDATE employees SET password = ? WHERE email = ?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setString(2, email);
+            return ps.executeUpdate() > 0;
+        }
     }
 }

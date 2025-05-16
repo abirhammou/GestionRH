@@ -7,14 +7,16 @@ public class Employees {
     private int phone;
     private String role;
     private Departement departement;
+    private String password;
 
-    public Employees(int id, String name, String email, int phone, String role, Departement departement) {
+    public Employees(int id, String name, String email, int phone, String role, Departement departement, String password) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
         this.role = role;
         this.departement = departement;
+        this.password = password;
     }
 
     public int getId() {
@@ -65,6 +67,14 @@ public class Employees {
         this.departement = departement;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     @Override
     public String toString() {
         return "Employees{" +
@@ -74,6 +84,7 @@ public class Employees {
                 ", phone=" + phone +
                 ", role='" + role + '\'' +
                 ", departement=" + departement +
+                ", password='" + password + '\'' +
                 '}';
     }
 }

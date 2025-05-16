@@ -8,8 +8,6 @@ public class Departement {
     private int phone;
     private String email;
 
-    // Constructors
-
     public Departement( String name, String description, int phone, String email) {
 
         this.name = name;

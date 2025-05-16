@@ -7,7 +7,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
@@ -16,8 +23,11 @@ import javafx.util.StringConverter;
 import services.DepartementService;
 import services.EmployeeService;
 
+import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
@@ -25,6 +35,7 @@ public class MainController implements Initializable {
     @FXML private AnchorPane homePane;
     @FXML private AnchorPane departmentsPane;
     @FXML private AnchorPane employeesPane;
+
     @FXML private TableColumn<Departement, String> departmentDescription;
     @FXML private TableColumn<Departement, String> departmentPhone;
     @FXML private TableColumn<Departement, String> departmentEmail;
@@ -37,18 +48,28 @@ public class MainController implements Initializable {
     @FXML private TextField nameTF;
     @FXML private TextField phoneTF;
     @FXML private TableView<Departement> table_view;
+    @FXML private Button logoutButton;
+
     @FXML private TableColumn<Employees, Integer> employeeID;
     @FXML private TableColumn<Employees, String> employeeName;
     @FXML private TableColumn<Employees, String> employeeEmail;
-    @FXML private TableColumn<Departement, Integer> employeePhone;
+    @FXML private TableColumn<Employees, Integer> employeePhone;
     @FXML private TableColumn<Employees, String> employeeRole;
     @FXML private TableColumn<Employees, String> employeeDepartement;
+    @FXML private TableColumn<Employees, String> employeePassword;
     @FXML private TextField employeeNameTF;
     @FXML private TextField employeeEmailTF;
     @FXML private TextField employeePhoneTF;
     @FXML private TextField employeeRoleTF;
+    @FXML private TextField employeePasswordTF;
     @FXML private ComboBox<Departement> departmentComboBox;
     @FXML private TableView<Employees> EmployeeTable;
+
+    @FXML private Label employeeCountLabel;
+    @FXML private Label departmentCountLabel;
+    @FXML private LineChart<String, Number> departmentChart;
+    @FXML private CategoryAxis xAxis;
+    @FXML private NumberAxis yAxis;
 
     private EmployeeService employeeService = new EmployeeService();
     private ObservableList<Employees> employeeList = FXCollections.observableArrayList();
@@ -61,10 +82,11 @@ public class MainController implements Initializable {
         setupEmployeeTable();
         setupDepartmentComboBox();
         showHome();
+        updateCountLabels();
+        updateDepartmentChart();
     }
 
     private void setupDepartmentTable() {
-        departmentID.setCellValueFactory(new PropertyValueFactory<>("id"));
         departmentName.setCellValueFactory(new PropertyValueFactory<>("name"));
         departmentDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
         departmentPhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
@@ -73,12 +95,13 @@ public class MainController implements Initializable {
     }
 
     private void setupEmployeeTable() {
-        employeeID.setCellValueFactory(new PropertyValueFactory<>("id"));
         employeeName.setCellValueFactory(new PropertyValueFactory<>("name"));
         employeeEmail.setCellValueFactory(new PropertyValueFactory<>("email"));
         employeePhone.setCellValueFactory(new PropertyValueFactory<>("phone"));
         employeeRole.setCellValueFactory(new PropertyValueFactory<>("role"));
-        employeeDepartement.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDepartement().getName()));
+        employeePassword.setCellValueFactory(new PropertyValueFactory<>("password"));
+        employeeDepartement.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().getDepartement().getName()));
         refreshEmployeeTable();
     }
 
@@ -87,6 +110,7 @@ public class MainController implements Initializable {
         homePane.setVisible(true);
         departmentsPane.setVisible(false);
         employeesPane.setVisible(false);
+        updateCountLabels();
     }
 
     @FXML
@@ -102,7 +126,7 @@ public class MainController implements Initializable {
         homePane.setVisible(false);
         departmentsPane.setVisible(false);
         employeesPane.setVisible(true);
-        refreshTable();
+        refreshEmployeeTable();
     }
 
     @FXML
@@ -123,6 +147,8 @@ public class MainController implements Initializable {
             showAlert("Success", "Department added successfully!");
             clearForm();
             refreshTable();
+            updateCountLabels();
+            updateDepartmentChart();
         } catch (SQLException e) {
             showAlert("Database Error", "Error adding department: " + e.getMessage());
         } catch (NumberFormatException e) {
@@ -149,6 +175,8 @@ public class MainController implements Initializable {
                 showAlert("Success", "Department deleted successfully!");
                 refreshTable();
                 clearForm();
+                updateCountLabels();
+                updateDepartmentChart();
             } catch (SQLException e) {
                 showAlert("Error", "Error deleting department: " + e.getMessage());
             }
@@ -194,13 +222,13 @@ public class MainController implements Initializable {
             showAlert("Success", "Department updated successfully!");
             refreshTable();
             clearForm();
+            updateDepartmentChart();
         } catch (SQLException e) {
             showAlert("Error", "Error updating department: " + e.getMessage());
         } catch (NumberFormatException e) {
             showAlert("Error", "Phone number must be a valid number.");
         }
     }
-
 
     @FXML
     private void handleTableClick() {
@@ -213,29 +241,9 @@ public class MainController implements Initializable {
         }
     }
 
-    private void refreshTable() {
-        try {
-            departementList.clear();
-            departementList.addAll(departementService.recuperer());
-            table_view.setItems(departementList);
-        } catch (SQLException e) {
-            showAlert("Error", "Failed to load departments: " + e.getMessage());
-        }
-    }
-
-    private void clearForm() {
-        nameTF.clear();
-        descriptionTF.clear();
-        phoneTF.clear();
-        emailTF.clear();
-    }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    public static boolean isValidPassword(String password) {
+        String regex = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&._-])[A-Za-z\\d@$!%*?&._-]{8,}$";
+        return password.matches(regex);
     }
 
     @FXML
@@ -245,9 +253,10 @@ public class MainController implements Initializable {
             String email = employeeEmailTF.getText().trim();
             String phone = employeePhoneTF.getText().trim();
             String role = employeeRoleTF.getText().trim();
+            String password = employeePasswordTF.getText().trim();
             Departement department = departmentComboBox.getValue();
 
-            if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || role.isEmpty() || department == null) {
+            if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || role.isEmpty() || password.isEmpty() || department == null) {
                 showAlert("Erreur", "Tous les champs sont obligatoires !");
                 return;
             }
@@ -262,6 +271,11 @@ public class MainController implements Initializable {
                 return;
             }
 
+            if (!isValidPassword(password)) {
+                showAlert("Erreur", "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.");
+                return;
+            }
+
             for (Employees emp : employeeService.getAllEmployees()) {
                 if (emp.getEmail().equalsIgnoreCase(email)) {
                     showAlert("Erreur", "Cette adresse e-mail est déjà utilisée.");
@@ -269,11 +283,13 @@ public class MainController implements Initializable {
                 }
             }
 
-            Employees newEmployee = new Employees(0, name, email, Integer.parseInt(phone), role, department);
+            Employees newEmployee = new Employees(0, name, email, Integer.parseInt(phone), role, department, password);
             employeeService.addEmployee(newEmployee);
             showAlert("Succès", "Employé ajouté avec succès !");
             clearEmployeeForm();
             refreshEmployeeTable();
+            updateCountLabels();
+            updateDepartmentChart();
         } catch (SQLException e) {
             showAlert("Erreur Base de Données", "Erreur lors de l'ajout : " + e.getMessage());
         } catch (NumberFormatException e) {
@@ -294,9 +310,10 @@ public class MainController implements Initializable {
             String email = employeeEmailTF.getText().trim();
             String phone = employeePhoneTF.getText().trim();
             String role = employeeRoleTF.getText().trim();
+            String password = employeePasswordTF.getText().trim();
             Departement department = departmentComboBox.getValue();
 
-            if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || role.isEmpty() || department == null) {
+            if (name.isEmpty() || email.isEmpty() || phone.isEmpty() || role.isEmpty() || password.isEmpty() || department == null) {
                 showAlert("Erreur", "Tous les champs sont obligatoires !");
                 return;
             }
@@ -311,6 +328,11 @@ public class MainController implements Initializable {
                 return;
             }
 
+            if (!isValidPassword(password)) {
+                showAlert("Erreur", "Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.");
+                return;
+            }
+
             for (Employees emp : employeeService.getAllEmployees()) {
                 if (emp.getEmail().equalsIgnoreCase(email) && emp.getId() != selected.getId()) {
                     showAlert("Erreur", "Cette adresse e-mail est déjà utilisée par un autre employé.");
@@ -322,12 +344,14 @@ public class MainController implements Initializable {
             selected.setEmail(email);
             selected.setPhone(Integer.parseInt(phone));
             selected.setRole(role);
+            selected.setPassword(password);
             selected.setDepartement(department);
 
             employeeService.updateEmployee(selected);
             showAlert("Succès", "Employé modifié avec succès !");
             refreshEmployeeTable();
             clearEmployeeForm();
+            updateDepartmentChart();
         } catch (SQLException e) {
             showAlert("Erreur", "Erreur lors de la mise à jour : " + e.getMessage());
         } catch (NumberFormatException e) {
@@ -354,6 +378,8 @@ public class MainController implements Initializable {
                 showAlert("Success", "Employee deleted successfully!");
                 refreshEmployeeTable();
                 clearEmployeeForm();
+                updateCountLabels();
+                updateDepartmentChart();
             } catch (SQLException e) {
                 showAlert("Error", "Error deleting employee: " + e.getMessage());
             }
@@ -368,7 +394,18 @@ public class MainController implements Initializable {
             employeeEmailTF.setText(selected.getEmail());
             employeePhoneTF.setText(String.valueOf(selected.getPhone()));
             employeeRoleTF.setText(selected.getRole());
+            employeePasswordTF.setText(selected.getPassword());
             departmentComboBox.setValue(selected.getDepartement());
+        }
+    }
+
+    private void refreshTable() {
+        try {
+            departementList.clear();
+            departementList.addAll(departementService.recuperer());
+            table_view.setItems(departementList);
+        } catch (SQLException e) {
+            showAlert("Error", "Failed to load departments: " + e.getMessage());
         }
     }
 
@@ -382,11 +419,19 @@ public class MainController implements Initializable {
         }
     }
 
+    private void clearForm() {
+        nameTF.clear();
+        descriptionTF.clear();
+        phoneTF.clear();
+        emailTF.clear();
+    }
+
     private void clearEmployeeForm() {
         employeeNameTF.clear();
         employeeEmailTF.clear();
         employeePhoneTF.clear();
         employeeRoleTF.clear();
+        employeePasswordTF.clear();
     }
 
     private void setupDepartmentComboBox() {
@@ -412,7 +457,76 @@ public class MainController implements Initializable {
             }
         } catch (SQLException e) {
             showAlert("Error", "Failed to load departments: " + e.getMessage());
-            e.printStackTrace();
         }
     }
+
+    private void updateCountLabels() {
+        try {
+            int employeeCount = employeeService.getAllEmployees().size();
+            int departmentCount = departementService.recuperer().size();
+
+            employeeCountLabel.setText(String.valueOf(employeeCount));
+            departmentCountLabel.setText(String.valueOf(departmentCount));
+            updateDepartmentChart();
+        } catch (SQLException e) {
+            showAlert("Error", "Failed to load counts: " + e.getMessage());
+        }
+    }
+
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private void updateDepartmentChart() {
+        try {
+            Map<String, Integer> stats = employeeService.getEmployeeCountByDepartment();
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName("Employees by department");
+
+            departmentChart.getData().clear();
+
+            for (Map.Entry<String, Integer> entry : stats.entrySet()) {
+                series.getData().add(new XYChart.Data<>(entry.getKey(), entry.getValue()));
+            }
+
+            departmentChart.getData().add(series);
+
+            departmentChart.setLegendVisible(true);
+            departmentChart.setCreateSymbols(true);
+            departmentChart.setAnimated(true);
+
+        } catch (SQLException e) {
+            showAlert("Error", "Failed to load department statistics: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleLogout() {
+        try {
+            Stage currentStage = (Stage) logoutButton.getScene().getWindow();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/Login.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Login");
+            stage.show();
+
+            currentStage.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Failed to logout");
+            alert.setContentText("Could not load the login view: " + e.getMessage());
+            alert.showAndWait();
+        }
+    }
+
 }
