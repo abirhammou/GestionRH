@@ -52,7 +52,7 @@
                   </ImageView>
                   <Button fx:id="post_btn" layoutX="122.0" layoutY="272.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="26.0" prefWidth="98.0" styleClass="nav-btn" stylesheets="@c.css" text="Post" />
                   <Button fx:id="home_btn" layoutX="122.0" layoutY="239.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="26.0" prefWidth="68.0" styleClass="nav-btn" stylesheets="@c.css" text="Profil" />
-                  <Label layoutX="82.0" layoutY="148.0" prefHeight="40.0" prefWidth="148.0" text="Marcsaw" textFill="#9eb01e">
+                  <Label layoutX="82.0" layoutY="148.0" prefHeight="40.0" prefWidth="148.0" text="Saw" textFill="#9eb01e">
                      <font>
                         <Font name="Arial Bold" size="20.0" />
                      </font>
@@ -66,18 +66,22 @@
                </children></AnchorPane>
             <AnchorPane fx:id="home" layoutX="312.0" prefHeight="644.0" prefWidth="523.0">
                <children>
-                  <Label layoutX="248.0" layoutY="95.0" text="Profile" />
+                  <Label layoutX="248.0" layoutY="95.0" text="Profil" textFill="#256b51">
+                     <font>
+                        <Font name="System Bold" size="27.0" />
+                     </font></Label>
                   <Label layoutX="86.0" layoutY="197.0" text="Name" />
                   <Label layoutX="82.0" layoutY="258.0" text="Email" />
                   <Label layoutX="79.0" layoutY="314.0" text="Phone" />
                   <Label layoutX="81.0" layoutY="381.0" text="Role" />
                   <Label layoutX="79.0" layoutY="437.0" text="Departement" />
-                  <TextField layoutX="174.0" layoutY="193.0" />
-                  <TextField layoutX="174.0" layoutY="254.0" />
-                  <TextField layoutX="174.0" layoutY="310.0" />
-                  <TextField layoutX="174.0" layoutY="377.0" />
-                  <TextField layoutX="174.0" layoutY="433.0" />
-                  <Button layoutX="334.0" layoutY="490.0" mnemonicParsing="false" text="Modify" />
+                  <TextField layoutX="174.0" layoutY="193.0" styleClass="text-field" stylesheets="@c.css" />
+                  <TextField layoutX="174.0" layoutY="254.0" styleClass="text-field" stylesheets="@c.css" />
+                  <TextField layoutX="174.0" layoutY="310.0" styleClass="text-field" stylesheets="@c.css" />
+                  <TextField layoutX="174.0" layoutY="377.0" styleClass="text-field" stylesheets="@c.css" />
+                  <TextField layoutX="174.0" layoutY="433.0" styleClass="text-field" stylesheets="@c.css" />
+                  <Button layoutX="334.0" layoutY="490.0" mnemonicParsing="false" styleClass="update-btn" stylesheets="@c.css" text="Modify" />
+                  <Line endX="120.0" endY="6.0" layoutX="275.0" layoutY="151.0" startX="-61.0" startY="6.0" />
                </children></AnchorPane>
          </children>
       </AnchorPane>
