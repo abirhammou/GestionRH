@@ -180,4 +180,55 @@ public class EmployeeService {
             return ps.executeUpdate() > 0;
         }
     }
+
+    public Employees getEmployeeByEmail(String email) throws SQLException {
+        String sql = "SELECT e.*, d.name as dep_name FROM employees e " +
+                "LEFT JOIN departement d ON e.department_id = d.id " +
+                "WHERE e.email = ?";
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, email);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Departement dep = new Departement(
+                            rs.getInt("department_id"),
+                            rs.getString("dep_name"),
+                            "",  // Assuming these are other department fields
+                            0,   // You may need to adjust these defaults
+                            ""
+                    );
+
+                    return new Employees(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("email"),
+                            rs.getInt("phone"),
+                            rs.getString("role"),
+                            dep,
+                            rs.getString("password")  // Note: You're retrieving password but won't display it
+                    );
+                }
+            }
+        }
+        return null;
+    }
+
+    public boolean validateHRLogin(String email, String password) throws SQLException {
+        String query = "SELECT COUNT(*) FROM employees e " +
+                "JOIN departement d ON e.department_id = d.id " +
+                "WHERE e.email = ? AND e.password = ? AND d.name = 'Human Resources'";
+
+        try (PreparedStatement statement = cnx.prepareStatement(query)) {
+            statement.setString(1, email);
+            statement.setString(2, password);
+
+            try (ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) > 0;
+                }
+            }
+        }
+        return false;
+    }
 }

@@ -30,6 +30,11 @@
                         <Font name="System Bold" size="12.0" />
                      </font>
                   </Button>
+                  <Button layoutX="70.0" layoutY="290.0" mnemonicParsing="false" onAction="#showRHForm" prefHeight="40.0" prefWidth="160.0" styleClass="btn" stylesheets="@Login.css" text="HR">
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Button>
                </children>
             </AnchorPane>
             <AnchorPane fx:id="employeePane" layoutX="300.0" prefHeight="405.0" prefWidth="300.0" styleClass="right-form" stylesheets="@Login.css" visible="false">
@@ -69,9 +74,21 @@
                   <Button layoutX="76.0" layoutY="257.0" mnemonicParsing="false" onAction="#showEmployeeForm" styleClass="reset-btn" stylesheets="@Login.css" text="Back to login" textFill="#587fe4" />
                </children>
             </AnchorPane>
+            <AnchorPane fx:id="rhPane" layoutX="300.0" prefHeight="405.0" prefWidth="300.0" visible="false">
+               <children>
+                  <TextField fx:id="rhEmailField" layoutX="41.0" layoutY="143.0" prefHeight="30.0" prefWidth="220.0" promptText="Email" styleClass="text-field" stylesheets="@Login.css" />
+                  <PasswordField fx:id="rhPasswordField" layoutX="40.0" layoutY="192.0" prefHeight="30.0" prefWidth="220.0" promptText="Password" />
+                  <Button layoutX="41.0" layoutY="249.0" mnemonicParsing="false" onAction="#handleRHLogin" prefHeight="40.0" prefWidth="220.0" styleClass="login-btn" stylesheets="@Login.css" text="Login" />
+                  <Label layoutX="132.0" layoutY="97.0" text="HR" textFill="#256b51">
+                     <font>
+                        <Font name="Tahoma Bold" size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
          </children>
       </AnchorPane>
-      <AnchorPane fx:id="homePane" prefHeight="200.0" prefWidth="200.0" visible="false">
+      <AnchorPane fx:id="rhPage" prefHeight="200.0" prefWidth="200.0" visible="false">
          <children>
             <Button fx:id="logoutButton" layoutX="274.0" layoutY="182.0" mnemonicParsing="false" onAction="#handleLogout" styleClass="delete-btn" stylesheets="@Departement.css" text="Button" />
          </children>

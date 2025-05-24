@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Line?>
+<?import javafx.scene.text.Font?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="643.0" prefWidth="835.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controllers.GestionK">
+
+    <children>
+        <AnchorPane fx:id="mainPane" prefHeight="608.0" prefWidth="786.0">
+            <children>
+                <!-- Left Navigation Panel -->
+                <AnchorPane fx:id="sidebar" layoutY="-1.0" prefHeight="643.0" prefWidth="314.0" styleClass="left-form" stylesheets="@c.css">
+                    <children>
+                        <Button fx:id="post_btn" layoutX="122.0" layoutY="309.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="26.0" prefWidth="98.0" styleClass="nav-btn" stylesheets="@c.css" text="Post" />
+                        <Button fx:id="home_btn" layoutX="123.0" layoutY="256.0" mnemonicParsing="false" onAction="#switchForm" prefHeight="26.0" prefWidth="68.0" styleClass="nav-btn" stylesheets="@c.css" text="Profil" />
+                        <Label fx:id="welcomeLabel" layoutX="88.0" layoutY="128.0" prefHeight="40.0" prefWidth="148.0" text="Welcome" textFill="#9eb01e">
+                            <font>
+                                <Font name="Tahoma" size="17.0" />
+                            </font>
+                        </Label>
+                        <Line endX="100.0" layoutX="162.0" layoutY="215.0" startX="-100.0" />
+                  <Button fx:id="logoutBtn" layoutX="45.0" layoutY="558.0" mnemonicParsing="false" onAction="#handleLogout" styleClass="delete-btn" stylesheets="@c.css" text="Logout" />
+                  <Button layoutX="113.0" layoutY="358.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="98.0" styleClass="nav-btn" stylesheets="@c.css" text="Pointage" />
+                    </children>
+                </AnchorPane>
+
+                <!-- Main Content Area -->
+                <AnchorPane fx:id="contentPane" layoutX="314.0" prefHeight="643.0" prefWidth="523.0" visible="false">
+                    <children>
+                        <!-- Post Creation Area -->
+                        <VBox fx:id="postCreationBox" layoutX="14.0" layoutY="14.0" spacing="10">
+                            <children>
+                                <TextArea fx:id="postContent" prefHeight="100.0" prefWidth="480.0" promptText="What's on your mind?" wrapText="true" />
+                                <HBox alignment="CENTER_RIGHT" spacing="10">
+                                    <children>
+                                        <Button fx:id="btnAddPost" onAction="#handleAddPost" styleClass="add-btn" stylesheets="@c.css" text="Post" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Posts Feed (Scrollable) -->
+                        <ScrollPane fitToWidth="true" hbarPolicy="NEVER" layoutX="14.0" layoutY="168.0" prefHeight="462.0" prefWidth="480.0" stylesheets="@c.css">
+                            <content>
+                                <VBox fx:id="postsContainer" spacing="20" />
+                            </content>
+                        </ScrollPane>
+                    </children>
+                </AnchorPane>
+            <AnchorPane fx:id="home" layoutX="314.0" prefHeight="643.0" prefWidth="523.0" styleClass="right-form" stylesheets="@Departement.css">
+                <children>
+                    <Label layoutX="229.0" layoutY="96.0" text="Profile" textFill="#256b51">
+                     <font>
+                        <Font name="Tahoma Bold" size="20.0" />
+                     </font></Label>
+                    <Label layoutX="110.0" layoutY="197.0" text="Name">
+                     <font>
+                        <Font name="Tahoma" size="15.0" />
+                     </font></Label>
+                    <Label layoutX="112.0" layoutY="249.0" text="Email">
+                     <font>
+                        <Font name="Tahoma" size="15.0" />
+                     </font></Label>
+                    <Label layoutX="109.0" layoutY="305.0" text="Phone">
+                     <font>
+                        <Font name="Tahoma" size="15.0" />
+                     </font></Label>
+                    <Label layoutX="116.0" layoutY="365.0" text="Role">
+                     <font>
+                        <Font name="Tahoma" size="15.0" />
+                     </font></Label>
+                    <Label layoutX="91.0" layoutY="421.0" text="Department">
+                     <font>
+                        <Font name="Tahoma" size="15.0" />
+                     </font></Label>
+                    <TextField fx:id="nameField" editable="false" layoutX="194.0" layoutY="190.0" prefHeight="33.0" prefWidth="166.0" stylesheets="@c.css" />
+                    <TextField fx:id="emailField" editable="false" layoutX="194.0" layoutY="242.0" prefHeight="33.0" prefWidth="166.0" />
+                    <TextField fx:id="phoneField" editable="false" layoutX="194.0" layoutY="298.0" prefHeight="33.0" prefWidth="166.0" />
+                    <TextField fx:id="roleField" editable="false" layoutX="194.0" layoutY="358.0" prefHeight="33.0" prefWidth="166.0" />
+                    <TextField fx:id="departmentField" editable="false" layoutX="194.0" layoutY="414.0" prefHeight="33.0" prefWidth="166.0" />
+                    <Button fx:id="modifyBtn" layoutX="326.0" layoutY="490.0" mnemonicParsing="false" onAction="#handleModify" prefHeight="33.0" prefWidth="68.0" styleClass="add-btn" stylesheets="@c.css" text="Modify" />
+                  <Line endX="100.0" layoutX="269.0" layoutY="140.0" startX="-100.0" stroke="#399771" />
+                </children></AnchorPane>
+            </children>
+        </AnchorPane>
+
+
+    </children>
+    
+</StackPane>

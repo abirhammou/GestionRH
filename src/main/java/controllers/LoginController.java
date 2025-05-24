@@ -1,5 +1,6 @@
 package controllers;
 
+import entities.Employees;
 import entities.Login;
 import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
@@ -23,13 +24,16 @@ public class LoginController {
     @FXML private AnchorPane employeePane;
     @FXML private AnchorPane adminPane;
     @FXML private AnchorPane loginPane;
-    @FXML private AnchorPane homePane;
+    @FXML private AnchorPane rhPage;
+    @FXML private AnchorPane rhPane;
     @FXML private TextField adminEmailField;
     @FXML private PasswordField adminPasswordField;
     @FXML private Button logoutButton;
     @FXML private AnchorPane forgotPasswordPane;
     @FXML private TextField forgotEmailField;
     @FXML private Button resetPasswordButton;
+    @FXML private TextField rhEmailField;
+    @FXML private PasswordField rhPasswordField;
 
     private EmployeeService employeeService = new EmployeeService();
 
@@ -37,11 +41,20 @@ public class LoginController {
     private void showEmployeeForm() {
         employeePane.setVisible(true);
         adminPane.setVisible(false);
+        rhPane.setVisible(false);
     }
 
     @FXML
     private void showAdminForm() {
         adminPane.setVisible(true);
+        employeePane.setVisible(false);
+        rhPane.setVisible(false);
+    }
+
+    @FXML
+    private void showRHForm() {
+        rhPane.setVisible(true);
+        adminPane.setVisible(false);
         employeePane.setVisible(false);
     }
 
@@ -56,9 +69,14 @@ public class LoginController {
         }
 
         try {
-            boolean isValid = employeeService.validateLogin(email, password);
-            if (isValid) {
-                showHomePane();
+            if (employeeService.validateLogin(email, password)) {
+                // Get the employee data
+                Employees employee = employeeService.getEmployeeByEmail(email);
+                if (employee != null) {
+                    openGestionPubView(employee);
+                } else {
+                    showAlert("Error", "Failed to load employee data!");
+                }
             } else {
                 showAlert("Error", "Invalid email or password!");
             }
@@ -67,11 +85,48 @@ public class LoginController {
         }
     }
 
+    private void openGestionPubView(Employees employee) {
+        try {
+            Stage currentStage = (Stage) emailField.getScene().getWindow();
+            currentStage.close();
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gestion1_pub.fxml"));
+            Parent root = loader.load();
+
+            // Pass employee data to the GestionK controller
+            GestionK controller = loader.getController();
+            controller.setEmployeeData(employee);
+
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Publication Management");
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Error", "Cannot open publication management view: " + e.getMessage());
+        }
+    }
+
+    private void openGestionPubView() {
+        try {
+            Stage currentStage = (Stage) emailField.getScene().getWindow();
+            currentStage.close();
+
+            // Load the gestion1_pub.fxml file
+            Parent root = FXMLLoader.load(getClass().getResource("/gestion1_pub.fxml"));
+            Stage stage = new Stage();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Publication Management");
+            stage.show();
+        } catch (IOException e) {
+            showAlert("Error", "Cannot open publication management view: " + e.getMessage());
+        }
+    }
+
     private void showHomePane() {
         loginPane.setVisible(false);
         employeePane.setVisible(false);
         adminPane.setVisible(false);
-        homePane.setVisible(true);
+        rhPage.setVisible(true);
     }
 
     private void showAlert(String title, String message) {
@@ -92,7 +147,7 @@ public class LoginController {
             return;
         }
 
-        // Hardcoded admin credentials check
+
         if (email.equals("admin@gmail.com") && password.equals("admin123")) {
             openDepartementView();
         } else {
@@ -121,7 +176,7 @@ public class LoginController {
             loginPane.setVisible(true);
             employeePane.setVisible(false);
             adminPane.setVisible(false);
-            homePane.setVisible(false);
+            rhPage.setVisible(false);
 
             emailField.clear();
             passwordField.clear();
@@ -194,4 +249,44 @@ public class LoginController {
 
         return sb.toString();
     }
+
+    @FXML
+    private void handleRHLogin() {
+        String email = rhEmailField.getText().trim();
+        String password = rhPasswordField.getText().trim();
+
+        if (email.isEmpty() || password.isEmpty()) {
+            showAlert("Error", "Email and password are required!");
+            return;
+        }
+
+        try {
+            if (employeeService.validateHRLogin(email, password)) {
+                Employees employee = employeeService.getEmployeeByEmail(email);
+                if (employee != null) {
+                    openRHView(employee);
+                } else {
+                    showAlert("Error", "Failed to load HR data!");
+                }
+            } else {
+                showAlert("Error", "Invalid HR credentials or not authorized!");
+            }
+        } catch (SQLException e) {
+            showAlert("Database Error", "Error during HR login: " + e.getMessage());
+        }
+    }
+
+    private void openRHView(Employees employee) {
+
+        loginPane.setVisible(false);
+        employeePane.setVisible(false);
+        adminPane.setVisible(false);
+        rhPane.setVisible(false);
+        forgotPasswordPane.setVisible(false);
+
+        rhPage.setVisible(true);
+
+    }
+
+
 }
