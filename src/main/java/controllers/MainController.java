@@ -2,6 +2,7 @@ package controllers;
 
 import entities.Departement;
 import entities.Employees;
+import entities.Recruitment;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,6 +27,7 @@ import services.EmployeeService;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -35,6 +37,7 @@ public class MainController implements Initializable {
     @FXML private AnchorPane homePane;
     @FXML private AnchorPane departmentsPane;
     @FXML private AnchorPane employeesPane;
+    @FXML private AnchorPane recruitmentPane;
 
     @FXML private TableColumn<Departement, String> departmentDescription;
     @FXML private TableColumn<Departement, String> departmentPhone;
@@ -64,6 +67,14 @@ public class MainController implements Initializable {
     @FXML private TextField employeePasswordTF;
     @FXML private ComboBox<Departement> departmentComboBox;
     @FXML private TableView<Employees> EmployeeTable;
+
+    @FXML private TableColumn<Recruitment, Integer> recruteeId;
+    @FXML private TableColumn<Recruitment, String> recruteeName;
+    @FXML private TableColumn<Recruitment, String> recruteeEmail;
+    @FXML private TableColumn<Recruitment, String> recruteePhone;
+    @FXML private TableColumn<Recruitment, Date> recruteeDate;
+    @FXML private TableColumn<Recruitment, String> recruteeStatus;
+
 
     @FXML private Label employeeCountLabel;
     @FXML private Label departmentCountLabel;
