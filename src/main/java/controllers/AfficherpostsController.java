@@ -9,7 +9,7 @@ public class AfficherpostsController {
 
 
     @FXML
-    private ListView<Post> listView;
+    public ListView<Post> listView;
 
 
     @FXML
